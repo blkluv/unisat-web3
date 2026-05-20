@@ -32,6 +32,7 @@ function App({
 
   const chain = CHAINS_MAP[chainType];
   const [messageApi, contextHolder] = useMessage();
+  const accountTextClassName = connected ? '' : 'placeholder-text';
 
   useEffect(() => {
     setChainType(initialChainType);
@@ -113,6 +114,10 @@ function App({
   }
 
   const unisat = (window as any).unisat;
+  const handleConnect = async () => {
+    await onBeforeConnect?.();
+    connect();
+  };
 
   // Build demo tabs from registry
   const demosByCategory = getDemosByCategory();
@@ -129,6 +134,7 @@ function App({
                 {demo.config.apiMethod || demo.config.title}
               </div>
             }
+            collapsible={connected ? undefined : 'disabled'}
           >
             <demo.component />
           </Collapse.Panel>
@@ -160,142 +166,146 @@ function App({
           </div>
           <p>UniSat Wallet Demo</p>
           <div style={{ minWidth: 100 }}>
-            {connected && (
+            {connected ? (
               <Button onClick={disconnect}>
                 Disconnect
+              </Button>
+            ) : (
+              <Button
+                onClick={handleConnect}
+                loading={isConnecting}
+                type="primary"
+              >
+                Connect Wallet
               </Button>
             )}
           </div>
         </div>
 
         {contextHolder}
-        {connected && account ? (
-          <div className="wallet-info-container">
-            <div className="info-cards-container">
-              <Card size="small" title="Wallet Info" style={{ flex: 1 }}>
-                <div style={{ textAlign: 'left', marginTop: 10 }}>
-                  <div style={{ fontWeight: 'bold' }}>Version:</div>
-                  <div style={{ wordWrap: 'break-word' }}>{version}</div>
-                </div>
+        <div className="wallet-info-container">
+          <div className="info-cards-container">
+            <Card size="small" title="Wallet Info" style={{ flex: 1 }}>
+              <div style={{ textAlign: 'left', marginTop: 10 }}>
+                <div style={{ fontWeight: 'bold' }}>Version:</div>
+                <div style={{ wordWrap: 'break-word' }}>{version || '-'}</div>
+              </div>
 
-                {chain && (
-                  <div style={{ textAlign: 'left', marginTop: 10 }}>
-                    <div style={{ fontWeight: 'bold' }}>Chain:</div>
-                    <Radio.Group
-                      onChange={async (e) => {
-                        if (!unisat) return;
-                        const nextChainType = e.target.value as ChainType;
-                        try {
-                          const chain = await unisat.switchChain(nextChainType);
-                          setChainType(chain.enum);
-                          onChainTypeChange?.(chain.enum);
-                        } catch (e) {
-                          messageApi.error((e as any).message);
-                        }
-                      }}
-                      value={chain.enum}
-                    >
-                      {chains.map((chain) => (
-                        <Radio key={chain.value} value={chain.value}>
-                          {chain.label}
-                        </Radio>
-                      ))}
-                    </Radio.Group>
+              {chain && (
+                <div style={{ textAlign: 'left', marginTop: 10 }}>
+                  <div style={{ fontWeight: 'bold' }}>Chain:</div>
+                  <Radio.Group
+                    onChange={async (e) => {
+                      if (!unisat) {
+                        messageApi.error('UniSat Wallet is not available.');
+                        return;
+                      }
+                      const nextChainType = e.target.value as ChainType;
+                      try {
+                        const chain = await unisat.switchChain(nextChainType);
+                        setChainType(chain.enum);
+                        onChainTypeChange?.(chain.enum);
+                      } catch (e) {
+                        messageApi.error((e as any).message);
+                      }
+                    }}
+                    value={chain.enum}
+                  >
+                    {chains.map((chain) => (
+                      <Radio key={chain.value} value={chain.value}>
+                        {chain.label}
+                      </Radio>
+                    ))}
+                  </Radio.Group>
+                </div>
+              )}
+
+              <div style={{ textAlign: 'left', marginTop: 10 }}>
+                <div style={{ fontWeight: 'bold' }}>Network:</div>
+                {supportLegacyNetworks.includes(network) ? (
+                  <Radio.Group
+                    onChange={async (e) => {
+                      if (!unisat) {
+                        messageApi.error('UniSat Wallet is not available.');
+                        return;
+                      }
+                      const nextNetwork = e.target.value;
+                      try {
+                        const network = await unisat.switchNetwork(nextNetwork);
+                        setNetwork(network);
+                      } catch (e) {
+                        messageApi.error((e as any).message);
+                      }
+                    }}
+                    value={network}
+                  >
+                    <Radio value={'livenet'}>livenet</Radio>
+                    <Radio value={'testnet'}>testnet</Radio>
+                  </Radio.Group>
+                ) : (
+                  <div>
+                    <p style={{ fontSize: 12, color: '#888' }}>
+                      Use "unisat.getChain" for non-legacy networks
+                    </p>
                   </div>
                 )}
+              </div>
+            </Card>
 
-                <div style={{ textAlign: 'left', marginTop: 10 }}>
-                  <div style={{ fontWeight: 'bold' }}>Network:</div>
-                  {supportLegacyNetworks.includes(network) ? (
-                    <Radio.Group
-                      onChange={async (e) => {
-                        if (!unisat) return;
-                        const nextNetwork = e.target.value;
-                        try {
-                          const network = await unisat.switchNetwork(nextNetwork);
-                          setNetwork(network);
-                        } catch (e) {
-                          messageApi.error((e as any).message);
-                        }
-                      }}
-                      value={network}
-                    >
-                      <Radio value={'livenet'}>livenet</Radio>
-                      <Radio value={'testnet'}>testnet</Radio>
-                    </Radio.Group>
-                  ) : (
-                    <div>
-                      <p style={{ fontSize: 12, color: '#888' }}>
-                        Use "unisat.getChain" for non-legacy networks
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </Card>
-
-              <Card size="small" title="Account Info" style={{ flex: 1 }}>
-                <div style={{ textAlign: 'left', marginTop: 10 }}>
-                  <div style={{ fontWeight: 'bold' }}>Address:</div>
-                  <div
-                    style={{ wordWrap: 'break-word', cursor: 'pointer' }}
-                    onClick={() => {
+            <Card size="small" title="Account Info" style={{ flex: 1 }}>
+              <div style={{ textAlign: 'left', marginTop: 10 }}>
+                <div style={{ fontWeight: 'bold' }}>Address:</div>
+                <div
+                  className={accountTextClassName}
+                  style={{ wordWrap: 'break-word', cursor: account ? 'pointer' : 'default' }}
+                  onClick={() => {
+                    if (account) {
                       copyToClipboard(account.address);
                       messageApi.success('Address Copied.');
-                    }}
-                  >
-                    {account.address}
-                  </div>
+                    }
+                  }}
+                >
+                  {account?.address || 'Not connected'}
                 </div>
+              </div>
 
-                <div style={{ textAlign: 'left', marginTop: 10 }}>
-                  <div style={{ fontWeight: 'bold' }}>PublicKey:</div>
-                  <div
-                    style={{ wordWrap: 'break-word', cursor: 'pointer' }}
-                    onClick={() => {
+              <div style={{ textAlign: 'left', marginTop: 10 }}>
+                <div style={{ fontWeight: 'bold' }}>PublicKey:</div>
+                <div
+                  className={accountTextClassName}
+                  style={{ wordWrap: 'break-word', cursor: account ? 'pointer' : 'default' }}
+                  onClick={() => {
+                    if (account) {
                       copyToClipboard(account.pubKey);
                       messageApi.success('PublicKey Copied.');
-                    }}
-                  >
-                    {account.pubKey}
+                    }
+                  }}
+                >
+                  {account?.pubKey || 'Not connected'}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'left', marginTop: 10 }}>
+                <div style={{ fontWeight: 'bold' }}>Balance</div>
+                <div className={accountTextClassName} style={{ wordWrap: 'break-word' }}>
+                  <div>
+                    Available: {connected ? satoshisToAmount(balanceV2.available) : '-'} {chain && chain.unit}
+                  </div>
+                  <div>
+                    Unavailable: {connected ? satoshisToAmount(balanceV2.unavailable) : '-'} {chain && chain.unit}
+                  </div>
+                  <div>
+                    Total: {connected ? satoshisToAmount(balanceV2.total) : '-'} {chain && chain.unit}
                   </div>
                 </div>
-
-                <div style={{ textAlign: 'left', marginTop: 10 }}>
-                  <div style={{ fontWeight: 'bold' }}>Balance</div>
-                  <div style={{ wordWrap: 'break-word' }}>
-                    <div>
-                      Available: {satoshisToAmount(balanceV2.available)} {chain && chain.unit}
-                    </div>
-                    <div>
-                      Unavailable: {satoshisToAmount(balanceV2.unavailable)} {chain && chain.unit}
-                    </div>
-                    <div>
-                      Total: {satoshisToAmount(balanceV2.total)} {chain && chain.unit}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            <div className="demos-container">
-              <Tabs items={tabItems} />
-            </div>
+              </div>
+            </Card>
           </div>
-        ) : (
-          <div>
-            <Button
-              onClick={async () => {
-                await onBeforeConnect?.();
-                connect();
-              }}
-              loading={isConnecting}
-              type="primary"
-              size="large"
-            >
-              Connect Wallet
-            </Button>
+
+          <div className="demos-container">
+            <Tabs items={tabItems} />
           </div>
-        )}
+        </div>
       </header>
     </div>
   );
