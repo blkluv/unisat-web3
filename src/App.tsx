@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import { Button, Card, Collapse, Radio, Tabs } from 'antd';
 import { CHAINS_MAP, ChainType } from './const';
@@ -7,7 +7,17 @@ import useMessage from 'antd/es/message/useMessage';
 import { useWallet } from '@unisat/wallet-connect-react';
 import { getDemosByCategory, CATEGORY_LABELS } from './demos';
 
-function App() {
+type AppProps = {
+  initialChainType?: ChainType;
+  onBeforeConnect?: () => Promise<void>;
+  onChainTypeChange?: (chainType: ChainType) => void;
+};
+
+function App({
+  initialChainType = ChainType.BITCOIN_MAINNET,
+  onBeforeConnect,
+  onChainTypeChange,
+}: AppProps) {
   const { account, wallet, isConnecting, isInitialized, connect, disconnect } = useWallet();
   const connected = !!account;
 
@@ -18,12 +28,16 @@ function App() {
   });
   const [network, setNetwork] = useState('livenet');
   const [version, setVersion] = useState('');
-  const [chainType, setChainType] = useState<ChainType>(ChainType.BITCOIN_MAINNET);
+  const [chainType, setChainType] = useState<ChainType>(initialChainType);
 
   const chain = CHAINS_MAP[chainType];
   const [messageApi, contextHolder] = useMessage();
 
-  const getBasicInfo = async () => {
+  useEffect(() => {
+    setChainType(initialChainType);
+  }, [initialChainType]);
+
+  const getBasicInfo = useCallback(async () => {
     const unisat = (window as any).unisat;
     if (!unisat) return;
 
@@ -37,6 +51,7 @@ function App() {
     try {
       const chain = await unisat.getChain();
       setChainType(chain.enum);
+      onChainTypeChange?.(chain.enum);
     } catch (e) {
       console.log('getChain error', e);
     }
@@ -54,13 +69,13 @@ function App() {
     } catch (e) {
       console.log('getVersion error ', e);
     }
-  };
+  }, [onChainTypeChange]);
 
   useEffect(() => {
     if (account) {
       getBasicInfo();
     }
-  }, [account]);
+  }, [account, getBasicInfo]);
 
   useEffect(() => {
     const unisat = (window as any).unisat;
@@ -73,6 +88,7 @@ function App() {
 
     const handleChainChanged = (chain: { enum: ChainType; name: string; network: string }) => {
       setChainType(chain.enum);
+      onChainTypeChange?.(chain.enum);
       getBasicInfo();
     };
 
@@ -83,7 +99,7 @@ function App() {
       unisat.removeListener('networkChanged', handleNetworkChanged);
       unisat.removeListener('chainChanged', handleChainChanged);
     };
-  }, []);
+  }, [getBasicInfo, onChainTypeChange]);
 
   if (!isInitialized) {
     return (
@@ -168,9 +184,11 @@ function App() {
                     <Radio.Group
                       onChange={async (e) => {
                         if (!unisat) return;
+                        const nextChainType = e.target.value as ChainType;
                         try {
-                          const chain = await unisat.switchChain(e.target.value);
+                          const chain = await unisat.switchChain(nextChainType);
                           setChainType(chain.enum);
+                          onChainTypeChange?.(chain.enum);
                         } catch (e) {
                           messageApi.error((e as any).message);
                         }
@@ -192,8 +210,9 @@ function App() {
                     <Radio.Group
                       onChange={async (e) => {
                         if (!unisat) return;
+                        const nextNetwork = e.target.value;
                         try {
-                          const network = await unisat.switchNetwork(e.target.value);
+                          const network = await unisat.switchNetwork(nextNetwork);
                           setNetwork(network);
                         } catch (e) {
                           messageApi.error((e as any).message);
@@ -265,7 +284,10 @@ function App() {
         ) : (
           <div>
             <Button
-              onClick={connect}
+              onClick={async () => {
+                await onBeforeConnect?.();
+                connect();
+              }}
               loading={isConnecting}
               type="primary"
               size="large"

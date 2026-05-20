@@ -2703,17 +2703,17 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@unisat/wallet-connect-react@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@unisat/wallet-connect-react/-/wallet-connect-react-0.2.0.tgz#42108c7ef61821d7dfc540a6645537602e0e5b20"
-  integrity sha512-k254s6vkuNBUlVzqX497EN3G0oTCKJTJLFuMZTccNTfW2XOWjW3zq1uslRYNwMn5YO3YI/bUCwXW7+xAFA3tqw==
+"@unisat/wallet-connect-react@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@unisat/wallet-connect-react/-/wallet-connect-react-0.2.2.tgz#2e65245c8c679e3d30f08ae271de50ecd811c374"
+  integrity sha512-tc4IXF0ZGbvpqcug0OgCCBcCByAzqO0e8szgbluMdfnEfXnnPSN1Rrpv3BM5QEBcS6lRSc1XR0ilmSKuRvgjGQ==
   dependencies:
-    "@unisat/wallet-connect" "0.2.0"
+    "@unisat/wallet-connect" "0.2.1"
 
-"@unisat/wallet-connect@0.2.0", "@unisat/wallet-connect@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@unisat/wallet-connect/-/wallet-connect-0.2.0.tgz#608ba8f11e6584326078b7385bd222a017978a20"
-  integrity sha512-Y8nVzzC+E+gOKERQKKem0+VsJ9TdjWosTwbbAej6wXo1V5Jbc3sNtJTR65lIalm5Rta6Ogl2cM9iaS8lDxAk6Q==
+"@unisat/wallet-connect@0.2.1", "@unisat/wallet-connect@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@unisat/wallet-connect/-/wallet-connect-0.2.1.tgz#9099172caecd53b36a4a3b89260e7becd9e531ff"
+  integrity sha512-DQk6R7mfUdyeoix5XYH6Dlm0XjGLH55HOJyN1VjR6b0bkjoKWFHYn7TKnjUCHT0BNZJErd30BZWTmW5dxJ88Og==
 
 "@webassemblyjs/ast@1.12.1", "@webassemblyjs/ast@^1.12.1":
   version "1.12.1"
