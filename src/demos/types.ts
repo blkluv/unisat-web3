@@ -29,13 +29,15 @@ export type DemoCategory =
   | 'signing'      // Message and PSBT signing
   | 'transaction'  // Sending BTC, inscriptions, runes
   | 'broadcast'    // Push tx/psbt
-  | 'advanced';    // Multi-sign, batch operations
+  | 'advanced'     // Multi-sign, batch operations
+  | 'rgb';         // RGB wallet operations
 
 export const CATEGORY_LABELS: Record<DemoCategory, string> = {
   signing: 'Signing',
   transaction: 'Transactions',
   broadcast: 'Broadcast',
   advanced: 'Advanced',
+  rgb: 'RGB',
 };
 
 export const CATEGORY_ORDER: DemoCategory[] = [
@@ -43,4 +45,5 @@ export const CATEGORY_ORDER: DemoCategory[] = [
   'transaction',
   'broadcast',
   'advanced',
+  'rgb',
 ];
