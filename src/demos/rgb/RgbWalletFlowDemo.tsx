@@ -22,6 +22,11 @@ function assertOkResponse(data: any) {
   return data;
 }
 
+function optionalNumber(value: string) {
+  const trimmed = value.trim();
+  return trimmed ? Number(trimmed) : undefined;
+}
+
 export const rgbWalletFlowConfig: DemoConfig = {
   key: 'rgbWalletFlow',
   title: 'RGB Wallet Flow',
@@ -38,6 +43,11 @@ export function RgbWalletFlowDemo() {
   const [issueName, setIssueName] = useState('Test RGB Asset');
   const [issuePrecision, setIssuePrecision] = useState('0');
   const [issueAmounts, setIssueAmounts] = useState('1000');
+  const [utxoCount, setUtxoCount] = useState('1');
+  const [utxoSize, setUtxoSize] = useState('5000');
+  const [utxoFeeRate, setUtxoFeeRate] = useState('1');
+  const [createUtxosBeginResult, setCreateUtxosBeginResult] = useState<any>();
+  const [createUtxosSignedPsbt, setCreateUtxosSignedPsbt] = useState('');
   const [assetId, setAssetId] = useState('');
   const [receiveAmount, setReceiveAmount] = useState('0');
   const [invoice, setInvoice] = useState('');
@@ -83,6 +93,60 @@ export function RgbWalletFlowDemo() {
         setInvoice(data.invoice);
       }
       return data;
+    }, format);
+  };
+
+  const createRgbUtxosBegin = async () => {
+    await execute(async () => {
+      const data = await getUnisat().createRgbUtxosBegin({
+        upTo: true,
+        num: optionalNumber(utxoCount),
+        size: optionalNumber(utxoSize),
+        feeRate: optionalNumber(utxoFeeRate),
+      });
+      setCreateUtxosBeginResult(data);
+      setCreateUtxosSignedPsbt('');
+      return data;
+    }, format);
+  };
+
+  const signCreateUtxosPsbt = async () => {
+    await execute(async () => {
+      const toSignData = createUtxosBeginResult?.toSignData;
+      const psbt =
+        createUtxosBeginResult?.psbt ||
+        toSignData?.psbtHex ||
+        createUtxosBeginResult?.psbtHex;
+      if (!psbt) throw new Error('Run create RGB UTXO begin first');
+      const signed = await getUnisat().signRgbPsbt(psbt);
+      setCreateUtxosSignedPsbt(signed);
+      return signed;
+    }, format);
+  };
+
+  const createRgbUtxosEnd = async () => {
+    await execute(async () => {
+      if (!createUtxosSignedPsbt.trim()) throw new Error('Signed RGB UTXO PSBT is required');
+      return getUnisat().createRgbUtxosEnd({ signedPsbt: createUtxosSignedPsbt.trim() });
+    }, format);
+  };
+
+  const fullCreateRgbUtxo = async () => {
+    await execute(async () => {
+      const begin = await getUnisat().createRgbUtxosBegin({
+        upTo: true,
+        num: optionalNumber(utxoCount),
+        size: optionalNumber(utxoSize),
+        feeRate: optionalNumber(utxoFeeRate),
+      });
+      const toSignData = begin?.toSignData;
+      const psbt = begin?.psbt || toSignData?.psbtHex || begin?.psbtHex;
+      if (!psbt) throw new Error('create-begin did not return a PSBT');
+      const signed = await getUnisat().signRgbPsbt(psbt);
+      const end = await getUnisat().createRgbUtxosEnd({ signedPsbt: signed });
+      setCreateUtxosBeginResult(begin);
+      setCreateUtxosSignedPsbt(signed);
+      return { begin, signed, end };
     }, format);
   };
 
@@ -181,6 +245,29 @@ export function RgbWalletFlowDemo() {
         <Button loading={isLoading} onClick={connect}>Connect</Button>
         <Button loading={isLoading} onClick={queryAssets}>Query Assets</Button>
       </Space>
+
+      <DemoField label="RGB UTXO Count">
+        <Input value={utxoCount} onChange={(e) => setUtxoCount(e.target.value)} />
+      </DemoField>
+      <DemoField label="RGB UTXO Size">
+        <Input value={utxoSize} onChange={(e) => setUtxoSize(e.target.value)} />
+      </DemoField>
+      <DemoField label="RGB UTXO Fee Rate">
+        <Input value={utxoFeeRate} onChange={(e) => setUtxoFeeRate(e.target.value)} />
+      </DemoField>
+      <Space style={{ marginTop: 16 }} wrap>
+        <Button loading={isLoading} onClick={createRgbUtxosBegin}>Create RGB UTXO Begin</Button>
+        <Button loading={isLoading} onClick={signCreateUtxosPsbt}>Sign RGB UTXO PSBT</Button>
+        <Button loading={isLoading} onClick={createRgbUtxosEnd}>Create RGB UTXO End</Button>
+        <Button type="primary" loading={isLoading} onClick={fullCreateRgbUtxo}>Full Create RGB UTXO</Button>
+      </Space>
+      <DemoField label="Signed RGB UTXO PSBT">
+        <Input.TextArea
+          value={createUtxosSignedPsbt}
+          onChange={(e) => setCreateUtxosSignedPsbt(e.target.value)}
+          rows={3}
+        />
+      </DemoField>
 
       <DemoField label="Issue Ticker">
         <Input
