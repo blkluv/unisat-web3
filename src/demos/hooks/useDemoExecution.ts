@@ -1,6 +1,39 @@
 import { useState, useCallback } from 'react';
 import type { DemoResult } from '../types';
 
+function stringifyObject(value: unknown) {
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function formatError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message || error.name;
+  }
+
+  if (error && typeof error === 'object') {
+    const record = error as Record<string, any>;
+    const message =
+      record.message ||
+      record.msg ||
+      record.error?.message ||
+      record.error?.msg ||
+      record.data?.message ||
+      record.data?.msg;
+
+    if (typeof message === 'string' && message.length > 0) {
+      return `${message}\n\n${stringifyObject(error)}`;
+    }
+
+    return stringifyObject(error);
+  }
+
+  return String(error);
+}
+
 /**
  * Hook for managing demo execution state
  */
@@ -18,8 +51,7 @@ export function useDemoExecution() {
       setResult({ status: 'success', data: formatted });
       return data;
     } catch (e) {
-      const error = e instanceof Error ? e.message : String(e);
-      setResult({ status: 'error', error });
+      setResult({ status: 'error', error: formatError(e) });
       throw e;
     }
   }, []);

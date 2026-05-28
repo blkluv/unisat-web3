@@ -15,6 +15,13 @@ function normalizeBaseUrl(value: string) {
   return value.replace(/\/+$/, '');
 }
 
+function assertOkResponse(data: any) {
+  if (data && typeof data === 'object' && 'code' in data && data.code !== 0) {
+    throw data;
+  }
+  return data;
+}
+
 export const rgbWalletFlowConfig: DemoConfig = {
   key: 'rgbWalletFlow',
   title: 'RGB Wallet Flow',
@@ -95,6 +102,7 @@ export function RgbWalletFlowDemo() {
         precision: Number(issuePrecision || '0'),
         amounts,
       });
+      assertOkResponse(data);
       const nextAssetId =
         data?.assetId || data?.asset_id || data?.data?.assetId || data?.data?.asset_id;
       if (nextAssetId) {
