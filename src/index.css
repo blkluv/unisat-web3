@@ -1,36 +1,89 @@
 :root {
-  --bg0: #050608;
-  --bg1: #0b0f10;
+  /* Core neon fintech palette (Cash App inspired but expanded) */
+  --bg0: #050607;
+  --bg1: #070a0c;
 
-  --card: rgba(18, 20, 22, 0.78);
-  --card-border: rgba(255, 255, 255, 0.06);
+  --accent: #00f5a0;
+  --accent2: #00d54b;
+  --accent3: #00c2ff; /* subtle mint-cyan shift but not dominant */
+  --accent4: #b8ff5c;
 
   --text: rgba(255, 255, 255, 0.92);
   --muted: rgba(255, 255, 255, 0.55);
-  --faint: rgba(255, 255, 255, 0.38);
 
-  /* Cash App green (primary) */
-  --accent: #00d54b;
-  --accent-soft: rgba(0, 213, 75, 0.14);
+  --card: rgba(18, 20, 22, 0.55);
+  --card-border: rgba(255, 255, 255, 0.06);
 
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
-  --radius: 16px;
+  --shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+  --radius: 18px;
 }
 
+/* =========================
+   MOVING GEN-Z GRADIENT BG
+========================= */
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  background: linear-gradient(180deg, var(--bg1), var(--bg0));
   color: var(--text);
+  overflow-x: hidden;
+
+  background: linear-gradient(-45deg,
+    #050607,
+    #06130d,
+    #031a12,
+    #081018,
+    #050607
+  );
+  background-size: 400% 400%;
+  animation: gradientFlow 14s ease infinite;
 }
 
-/* layout */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* floating glow blobs (modern fintech / gen-z vibe) */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  filter: blur(120px);
+  opacity: 0.25;
+  z-index: -1;
+  animation: floatGlow 10s ease-in-out infinite;
+}
+
+body::before {
+  background: radial-gradient(circle, var(--accent), transparent 60%);
+  top: -120px;
+  left: -120px;
+}
+
+body::after {
+  background: radial-gradient(circle, var(--accent4), transparent 60%);
+  bottom: -160px;
+  right: -160px;
+  animation-delay: -4s;
+}
+
+@keyframes floatGlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.1); }
+}
+
+/* =========================
+   APP LAYOUT
+========================= */
 .app-shell {
   min-height: 100vh;
   padding: 22px;
 }
 
-/* top bar */
+/* top bar glass morph */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -39,26 +92,27 @@ body {
   padding: 14px 18px;
   margin-bottom: 18px;
 
-  background: rgba(18, 20, 22, 0.65);
+  background: rgba(10, 12, 14, 0.55);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
 
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(20px);
   box-shadow: var(--shadow);
 }
 
 .brand {
   font-size: 16px;
-  font-weight: 700;
-  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+
+  background: linear-gradient(90deg, var(--accent), var(--accent4), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.wallet-meta {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* grid */
+/* =========================
+   GRID
+========================= */
 .grid {
   display: grid;
   grid-template-columns: 420px 1fr;
@@ -71,33 +125,74 @@ body {
   }
 }
 
-/* cards */
+/* =========================
+   GLASS CARDS (FINTECH UX)
+========================= */
 .glass-card {
   background: var(--card);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
-  backdrop-filter: blur(20px);
+
+  backdrop-filter: blur(22px);
   box-shadow: var(--shadow);
+
+  position: relative;
+  overflow: hidden;
 }
 
-/* antd overrides */
-.ant-card-head-title {
+/* animated edge glow */
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg,
+    transparent,
+    rgba(0, 245, 160, 0.25),
+    transparent
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderGlow 3.5s linear infinite;
+}
+
+@keyframes borderGlow {
+  0% { transform: translateX(-40%); }
+  100% { transform: translateX(40%); }
+}
+
+/* =========================
+   TEXT FIX (CRITICAL)
+========================= */
+.value,
+.ant-card-body,
+.ant-collapse-header,
+.ant-collapse-content {
   color: var(--text) !important;
-  font-weight: 600;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-.ant-card-head {
-  border-bottom: 1px solid var(--card-border) !important;
+/* placeholder MUST be readable */
+.placeholder-text {
+  color: rgba(255,255,255,0.38) !important;
+  opacity: 1 !important;
 }
 
-/* fields */
+/* =========================
+   FIELDS UX
+========================= */
 .field {
   margin-top: 14px;
 }
 
 .label {
   font-size: 11px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 6px;
@@ -105,111 +200,99 @@ body {
 
 .value {
   font-size: 13px;
-  color: var(--text) !important;
-  line-height: 1.4;
+  line-height: 1.5;
   word-break: break-word;
-
-  /* CRITICAL FIX: never hide text */
-  opacity: 1 !important;
-  visibility: visible !important;
-  filter: none !important;
 }
 
-/* ensures "Not connected" is readable (was likely blending in) */
-.placeholder-text {
-  color: var(--faint) !important;
-  opacity: 1 !important;
-}
-
-/* clickable values */
+/* interactive "tap glow" UX */
 .clickable {
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 10px;
+  padding: 7px 10px;
+  border-radius: 12px;
   transition: 0.18s ease;
 }
 
 .clickable:hover {
-  background: var(--accent-soft);
+  background: rgba(0, 245, 160, 0.12);
   color: var(--accent);
+  transform: translateY(-1px);
 }
 
-/* buttons */
+/* =========================
+   BUTTONS (GEN-Z FINTECH)
+========================= */
 .btn-primary {
-  background: var(--accent) !important;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
   border: none !important;
-  color: #071008 !important;
-  font-weight: 700 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 12px 30px rgba(0, 213, 75, 0.22);
+  color: #04110a !important;
+  font-weight: 800 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 14px 40px rgba(0, 213, 75, 0.25);
 }
 
 .btn-primary:hover {
+  filter: brightness(1.05);
   transform: translateY(-1px);
-  opacity: 0.95;
 }
 
 .btn-outline {
-  border: 1px solid rgba(0, 213, 75, 0.5) !important;
+  border: 1px solid rgba(0, 245, 160, 0.5) !important;
   color: var(--accent) !important;
-  background: rgba(0, 213, 75, 0.06) !important;
-  border-radius: 12px !important;
+  background: rgba(0, 245, 160, 0.06) !important;
+  border-radius: 14px !important;
 }
 
-/* tabs */
+/* =========================
+   TABS
+========================= */
 .glass-tabs .ant-tabs-tab {
-  color: var(--muted) !important;
+  color: rgba(255,255,255,0.5) !important;
 }
 
 .glass-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
   color: var(--accent) !important;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.glass-tabs .ant-tabs-nav::before {
-  border-bottom: 1px solid var(--card-border);
-}
-
-/* collapse */
+/* =========================
+   COLLAPSE
+========================= */
 .ant-collapse-item {
-  background: rgba(18, 20, 22, 0.55) !important;
+  background: rgba(10, 12, 14, 0.5) !important;
   border: 1px solid var(--card-border) !important;
   border-radius: 14px !important;
   margin-bottom: 10px;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
 }
 
-/* FIX: collapse text readability */
-.ant-collapse-header,
-.ant-collapse-content,
-.ant-collapse-content-box {
-  color: var(--text) !important;
-}
-
-/* radios */
+/* =========================
+   RADIO / INPUT FIX
+========================= */
 .ant-radio-wrapper {
   color: var(--text) !important;
 }
 
-/* remove any default blue Ant styling */
 .ant-radio-checked .ant-radio-inner {
   border-color: var(--accent) !important;
 }
 
 .ant-radio-inner::after {
-  background-color: var(--accent) !important;
+  background: var(--accent) !important;
 }
 
-/* loading */
+/* =========================
+   LOADING STATE
+========================= */
 .loading {
   color: var(--accent);
   font-size: 14px;
-  padding: 50px;
+  padding: 60px;
   text-align: center;
+  letter-spacing: 0.5px;
 }
 
 /* selection */
 ::selection {
-  background: var(--accent-soft);
-  color: var(--text);
+  background: rgba(0, 245, 160, 0.25);
+  color: #fff;
 }
