@@ -35,6 +35,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .wallet-info-container {
@@ -45,6 +46,7 @@
   max-width: 1200px;
   padding: 16px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .info-cards-container {
@@ -52,7 +54,8 @@
   flex-direction: row;
   width: 100%;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
 }
 
 .collapse-container {
@@ -65,6 +68,7 @@
   background-color: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   padding: 16px;
+  box-sizing: border-box;
 }
 
 .demos-container .ant-tabs-nav {
@@ -73,6 +77,10 @@
 
 .demos-container .ant-collapse {
   background-color: transparent;
+}
+
+.placeholder-text {
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .function-card {
@@ -88,16 +96,16 @@
 
   .header-container {
     flex-direction: column;
-    gap: 16px;
-    padding: 16px 8px;
+    gap: 12px;
+    padding: 8px 0;
   }
 
   .header-container > div {
-    margin: 8px 0;
+    margin: 0;
   }
 
   .wallet-info-container {
-    padding: 8px;
+    padding: 8px 0;
   }
 }
 

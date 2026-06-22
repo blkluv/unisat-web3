@@ -25,6 +25,9 @@ import { PushTxDemo, pushTxConfig } from './broadcast/PushTxDemo';
 import { MultiSignMessageDemo, multiSignMessageConfig } from './advanced/MultiSignMessageDemo';
 import { DeriveContextHashDemo, deriveContextHashConfig } from './advanced/DeriveContextHashDemo';
 
+// RGB demos
+import { RgbWalletFlowDemo, rgbWalletFlowConfig } from './rgb/RgbWalletFlowDemo';
+
 /**
  * Demo entry with config and component
  */
@@ -59,6 +62,9 @@ export const DEMOS: DemoEntry[] = [
   // Advanced
   { config: multiSignMessageConfig, component: MultiSignMessageDemo },
   { config: deriveContextHashConfig, component: DeriveContextHashDemo },
+
+  // RGB
+  { config: rgbWalletFlowConfig, component: RgbWalletFlowDemo },
 ];
 
 /**
