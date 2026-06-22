@@ -1,6 +1,6 @@
 {
-  "short_name": "UniSat Demo",
-  "name": "UniSat Wallet Demo",
+  "short_name": "SatPay",
+  "name": "SatPay Wallet",
   "icons": [
     {
       "src": "favicon.ico",
