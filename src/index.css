@@ -296,3 +296,10 @@ body::after {
   background: rgba(0, 245, 160, 0.25);
   color: #fff;
 }
+
+/* Wallet Info title = Cash App green */
+.glass-card .ant-card-head-title {
+  color: #00d54b !important;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
