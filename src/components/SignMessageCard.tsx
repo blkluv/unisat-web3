@@ -8,16 +8,16 @@ export function SignMessageCard() {
     error: "",
     data: "",
   });
-  const doc_url =
-    "https://github.com/unisat-wallet/wallet/blob/master/docs/api/sign-message.md#signmessage";
+
   return (
-    <Card size="small" title="Sign Message" style={{ margin: 10 }}>
-      <div style={{ textAlign: "left", marginTop: 10 }}>
-        <div style={{ fontWeight: "bold" }}>Docs:</div>
-        <a href={doc_url} target="_blank">
-          {doc_url}
-        </a>
-      </div>
+    <Card 
+      size="small" 
+      title="Sign Message" 
+      style={{ margin: 10 }}
+      extra={<span style={{ fontSize: 12, color: "#888" }}>Prove you own this wallet</span>}
+    >
+      {/* The docs URL section has been removed */}
+
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Message:</div>
         <Input
@@ -25,8 +25,9 @@ export function SignMessageCard() {
           onChange={(e) => {
             setMessage(e.target.value);
           }}
-        ></Input>
+        />
       </div>
+
       {result.success ? (
         <div style={{ textAlign: "left", marginTop: 10 }}>
           <div style={{ fontWeight: "bold" }}>Signature:</div>
@@ -62,7 +63,7 @@ export function SignMessageCard() {
           }
         }}
       >
-        Sign By ecdsa
+        Sign with ECDSA
       </Button>
 
       <Button
@@ -92,8 +93,12 @@ export function SignMessageCard() {
           }
         }}
       >
-        Sign By bip322-simple
+        Sign with BIP-322
       </Button>
+
+      <div style={{ marginTop: 16, fontSize: 13, color: "#666", textAlign: "left" }}>
+        💡 <strong>What this does:</strong> Signing a message with your wallet proves that you control this address. It's like a digital handshake — it confirms your identity without sending any funds.
+      </div>
     </Card>
   );
 }

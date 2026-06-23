@@ -9,7 +9,7 @@ export const sendBitcoinConfig: DemoConfig = {
   title: 'Send Bitcoin',
   category: 'transaction',
   apiMethod: 'unisat.sendBitcoin',
-  docUrl: 'https://github.com/unisat-wallet/wallet/blob/master/docs/api/manage-assets.md#sendbitcoin',
+  // docUrl removed — no longer displayed
   description: 'Send BTC to a specified address.',
   walletConnectSupported: false,
 };

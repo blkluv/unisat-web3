@@ -29,11 +29,12 @@ function optionalNumber(value: string) {
 
 export const rgbWalletFlowConfig: DemoConfig = {
   key: 'rgbWalletFlow',
-  title: 'RGB Wallet Flow',
+  title: 'Manage Digital Assets (RGB)',
   category: 'rgb',
   apiMethod: 'unisat.createRgb* / unisat.signRgbPsbt',
+  // docUrl removed — no longer displayed
   description:
-    'Issue RGB NIA assets, query assets, create receive invoices, build an RGB transfer PSBT, sign it, and complete send-end.',
+    'Complete workflow for issuing, receiving, and sending digital assets on the Bitcoin network using the RGB protocol — think of it as creating and transferring your own tokens or collectibles.',
 };
 
 export function RgbWalletFlowDemo() {
@@ -72,7 +73,7 @@ export function RgbWalletFlowDemo() {
   const queryAssets = async () => {
     await walletExecution.execute(async () => {
       const targetAddress = address || (await getUnisat().getAccounts())?.[0];
-      if (!targetAddress) throw new Error('Connect wallet first');
+      if (!targetAddress) throw new Error('Please connect your wallet first');
       setAddress(targetAddress);
       const url = `${normalizeBaseUrl(walletApiUrl)}/v5/rgb/address/${encodeURIComponent(
         targetAddress
@@ -121,7 +122,7 @@ export function RgbWalletFlowDemo() {
         createUtxosBeginResult?.psbt ||
         toSignData?.psbtHex ||
         createUtxosBeginResult?.psbtHex;
-      if (!psbt) throw new Error('Run create RGB UTXO begin first');
+      if (!psbt) throw new Error('Please run "Prepare Transaction" first');
       const signed = await getUnisat().signRgbPsbt(psbt);
       setCreateUtxosSignedPsbt(signed);
       return signed;
@@ -130,7 +131,7 @@ export function RgbWalletFlowDemo() {
 
   const createRgbUtxosEnd = async () => {
     await utxoExecution.execute(async () => {
-      if (!createUtxosSignedPsbt.trim()) throw new Error('Signed RGB UTXO PSBT is required');
+      if (!createUtxosSignedPsbt.trim()) throw new Error('Signed transaction is required');
       return getUnisat().createRgbUtxosEnd({ signedPsbt: createUtxosSignedPsbt.trim() });
     }, format);
   };
@@ -145,7 +146,7 @@ export function RgbWalletFlowDemo() {
       });
       const toSignData = begin?.toSignData;
       const psbt = begin?.psbt || toSignData?.psbtHex || begin?.psbtHex;
-      if (!psbt) throw new Error('create-begin did not return a PSBT');
+      if (!psbt) throw new Error('Could not prepare the transaction');
       const signed = await getUnisat().signRgbPsbt(psbt);
       const end = await getUnisat().createRgbUtxosEnd({ signedPsbt: signed });
       setCreateUtxosBeginResult(begin);
@@ -160,8 +161,8 @@ export function RgbWalletFlowDemo() {
         .split(',')
         .map((item) => item.trim())
         .filter(Boolean);
-      if (!issueTicker.trim()) throw new Error('Ticker is required');
-      if (!issueName.trim()) throw new Error('Name is required');
+      if (!issueTicker.trim()) throw new Error('Asset symbol is required');
+      if (!issueName.trim()) throw new Error('Asset name is required');
       if (!amounts.length) throw new Error('At least one amount is required');
 
       const data = await getUnisat().createRgbIssueNia({
@@ -182,7 +183,7 @@ export function RgbWalletFlowDemo() {
 
   const createSendBegin = async () => {
     await sendExecution.execute(async () => {
-      if (!invoice.trim()) throw new Error('RGB invoice is required');
+      if (!invoice.trim()) throw new Error('Invoice is required');
       if (!assetId.trim()) throw new Error('Asset ID is required');
       if (!sendAmount.trim()) throw new Error('Send amount is required');
       const data = await getUnisat().createRgbSendBegin({
@@ -201,7 +202,7 @@ export function RgbWalletFlowDemo() {
     await sendExecution.execute(async () => {
       const toSignData = sendBeginResult?.toSignData;
       const psbt = sendBeginResult?.psbt || toSignData?.psbtHex || sendBeginResult?.psbtHex;
-      if (!psbt) throw new Error('Run send-begin first');
+      if (!psbt) throw new Error('Please prepare the transaction first');
       const signed = await getUnisat().signRgbPsbt(psbt);
       setSignedPsbt(signed);
       return signed;
@@ -210,14 +211,14 @@ export function RgbWalletFlowDemo() {
 
   const sendEnd = async () => {
     await sendExecution.execute(async () => {
-      if (!signedPsbt.trim()) throw new Error('Signed PSBT is required');
+      if (!signedPsbt.trim()) throw new Error('Signed transaction is required');
       return getUnisat().createRgbSendEnd({ signedPsbt: signedPsbt.trim() });
     }, format);
   };
 
   const fullSend = async () => {
     await sendExecution.execute(async () => {
-      if (!invoice.trim()) throw new Error('RGB invoice is required');
+      if (!invoice.trim()) throw new Error('Invoice is required');
       if (!assetId.trim()) throw new Error('Asset ID is required');
       if (!sendAmount.trim()) throw new Error('Send amount is required');
       const begin = await getUnisat().createRgbSendBegin({
@@ -228,7 +229,7 @@ export function RgbWalletFlowDemo() {
       });
       const toSignData = begin?.toSignData;
       const psbt = begin?.psbt || toSignData?.psbtHex || begin?.psbtHex;
-      if (!psbt) throw new Error('send-begin did not return a PSBT');
+      if (!psbt) throw new Error('Could not prepare the transaction');
       const signed = await getUnisat().signRgbPsbt(psbt);
       const end = await getUnisat().createRgbSendEnd({ signedPsbt: signed });
       setSendBeginResult(begin);
@@ -239,108 +240,147 @@ export function RgbWalletFlowDemo() {
 
   return (
     <DemoCard config={rgbWalletFlowConfig}>
-      <RgbSection title="Wallet">
+      <Alert
+        type="info"
+        showIcon
+        style={{ marginBottom: 16, textAlign: 'left' }}
+        message="What is RGB?"
+        description="RGB is a protocol that lets you create and manage digital assets on Bitcoin — similar to how you might create a custom token or digital collectible. This workflow guides you through the entire process: creating, receiving, and sending these assets."
+      />
+
+      <RgbSection title="Wallet Connection">
         <DemoField label="Wallet API URL">
           <Input value={walletApiUrl} onChange={(e) => setWalletApiUrl(e.target.value)} />
         </DemoField>
-        <DemoField label="Address">
-          <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Connected address" />
+        <DemoField label="Your Wallet Address">
+          <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Connect your wallet to see your address" />
         </DemoField>
         <Space style={{ marginTop: 16 }} wrap>
-          <Button loading={walletExecution.isLoading} onClick={connect}>Connect</Button>
-          <Button loading={walletExecution.isLoading} onClick={queryAssets}>Query Assets</Button>
+          <Button loading={walletExecution.isLoading} onClick={connect}>Connect Wallet</Button>
+          <Button loading={walletExecution.isLoading} onClick={queryAssets}>View My Assets</Button>
         </Space>
         <SectionResult result={walletExecution.result} />
       </RgbSection>
 
-      <RgbSection title="RGB UTXO">
-        <DemoField label="RGB UTXO Count">
-          <Input value={utxoCount} onChange={(e) => setUtxoCount(e.target.value)} />
+      <RgbSection title="Prepare Storage (UTXO)">
+        <p style={{ fontSize: 13, color: '#666' }}>Before creating assets, you need to reserve some Bitcoin space to store them.</p>
+        <DemoField label="Storage Count">
+          <Input value={utxoCount} onChange={(e) => setUtxoCount(e.target.value)} placeholder="How many storage slots to create" />
         </DemoField>
-        <DemoField label="RGB UTXO Size">
-          <Input value={utxoSize} onChange={(e) => setUtxoSize(e.target.value)} />
+        <DemoField label="Storage Size">
+          <Input value={utxoSize} onChange={(e) => setUtxoSize(e.target.value)} placeholder="Size of each storage slot" />
         </DemoField>
-        <DemoField label="RGB UTXO Fee Rate">
-          <Input value={utxoFeeRate} onChange={(e) => setUtxoFeeRate(e.target.value)} />
+        <DemoField label="Transaction Fee Rate">
+          <Input value={utxoFeeRate} onChange={(e) => setUtxoFeeRate(e.target.value)} placeholder="Fee rate in satoshis per byte" />
         </DemoField>
         <Space style={{ marginTop: 16 }} wrap>
-          <Button loading={utxoExecution.isLoading} onClick={createRgbUtxosBegin}>Create RGB UTXO Begin</Button>
-          <Button loading={utxoExecution.isLoading} onClick={signCreateUtxosPsbt}>Sign RGB UTXO PSBT</Button>
-          <Button loading={utxoExecution.isLoading} onClick={createRgbUtxosEnd}>Create RGB UTXO End</Button>
-          <Button type="primary" loading={utxoExecution.isLoading} onClick={fullCreateRgbUtxo}>Full Create RGB UTXO</Button>
+          <Button loading={utxoExecution.isLoading} onClick={createRgbUtxosBegin}>1. Prepare Storage</Button>
+          <Button loading={utxoExecution.isLoading} onClick={signCreateUtxosPsbt}>2. Sign Storage Creation</Button>
+          <Button loading={utxoExecution.isLoading} onClick={createRgbUtxosEnd}>3. Complete Storage</Button>
+          <Button type="primary" loading={utxoExecution.isLoading} onClick={fullCreateRgbUtxo}>⚡ Full Setup (All Steps)</Button>
         </Space>
         <SectionResult result={utxoExecution.result} />
-        <DemoField label="Signed RGB UTXO PSBT">
+        <DemoField label="Signed Transaction Data">
           <Input.TextArea
             value={createUtxosSignedPsbt}
             onChange={(e) => setCreateUtxosSignedPsbt(e.target.value)}
             rows={3}
+            placeholder="Signed transaction will appear here after signing"
           />
         </DemoField>
       </RgbSection>
 
-      <RgbSection title="Issue Asset">
-        <DemoField label="Issue Ticker">
+      <RgbSection title="Create Your Own Asset">
+        <p style={{ fontSize: 13, color: '#666' }}>This is where you create your own digital token or collectible.</p>
+        <DemoField label="Asset Symbol">
           <Input
             value={issueTicker}
             onChange={(e) => setIssueTicker(e.target.value.toUpperCase())}
-            placeholder="Uppercase, max 8 chars"
+            placeholder="e.g., MYTKN (max 8 characters)"
           />
         </DemoField>
-        <DemoField label="Issue Name">
-          <Input value={issueName} onChange={(e) => setIssueName(e.target.value)} />
+        <DemoField label="Asset Name">
+          <Input value={issueName} onChange={(e) => setIssueName(e.target.value)} placeholder="e.g., My Test Token" />
         </DemoField>
-        <DemoField label="Issue Precision">
-          <Input value={issuePrecision} onChange={(e) => setIssuePrecision(e.target.value)} />
+        <DemoField label="Decimal Precision">
+          <Input value={issuePrecision} onChange={(e) => setIssuePrecision(e.target.value)} placeholder="0 = whole numbers only" />
         </DemoField>
-        <DemoField label="Issue Amounts">
+        <DemoField label="Supply Amounts">
           <Input
             value={issueAmounts}
             onChange={(e) => setIssueAmounts(e.target.value)}
-            placeholder="1000 or 1000,2000"
+            placeholder="e.g., 1000 or 1000,2000 (for multiple batches)"
           />
         </DemoField>
         <Space style={{ marginTop: 16 }} wrap>
-          <Button type="primary" loading={issueExecution.isLoading} onClick={createIssueNia}>Issue NIA Asset</Button>
+          <Button type="primary" loading={issueExecution.isLoading} onClick={createIssueNia}>Create New Asset</Button>
         </Space>
         <SectionResult result={issueExecution.result} />
+        {assetId && (
+          <Alert
+            type="success"
+            style={{ marginTop: 12 }}
+            message="Asset Created!"
+            description={`Your asset ID is: ${assetId.slice(0, 30)}... Keep this safe — it's how you identify your asset.`}
+          />
+        )}
       </RgbSection>
 
-      <RgbSection title="Receive">
-        <DemoField label="Asset ID">
-          <Input value={assetId} onChange={(e) => setAssetId(e.target.value)} placeholder="rgb:..." />
+      <RgbSection title="Receive Assets">
+        <p style={{ fontSize: 13, color: '#666' }}>Generate an invoice to receive assets from someone else.</p>
+        <DemoField label="Asset ID (to receive)">
+          <Input value={assetId} onChange={(e) => setAssetId(e.target.value)} placeholder="Paste the asset ID you want to receive" />
         </DemoField>
-        <DemoField label="Receive Amount">
-          <Input value={receiveAmount} onChange={(e) => setReceiveAmount(e.target.value)} />
+        <DemoField label="Amount to Receive">
+          <Input value={receiveAmount} onChange={(e) => setReceiveAmount(e.target.value)} placeholder="How much you want to receive" />
         </DemoField>
         <Space style={{ marginTop: 16 }} wrap>
-          <Button loading={receiveExecution.isLoading} onClick={() => createReceive('blind')}>Create Blind Invoice</Button>
-          <Button loading={receiveExecution.isLoading} onClick={() => createReceive('witness')}>Create Witness Invoice</Button>
+          <Button loading={receiveExecution.isLoading} onClick={() => createReceive('blind')}>Generate Standard Invoice</Button>
+          <Button loading={receiveExecution.isLoading} onClick={() => createReceive('witness')}>Generate Advanced Invoice</Button>
         </Space>
         <SectionResult result={receiveExecution.result} />
+        {invoice && (
+          <Alert
+            type="success"
+            style={{ marginTop: 12 }}
+            message="Invoice Generated"
+            description={<div style={{ wordBreak: 'break-all' }}>{invoice}</div>}
+          />
+        )}
       </RgbSection>
 
-      <RgbSection title="Send">
-        <DemoField label="Invoice">
-          <Input.TextArea value={invoice} onChange={(e) => setInvoice(e.target.value)} rows={3} />
+      <RgbSection title="Send Assets">
+        <p style={{ fontSize: 13, color: '#666' }}>Use an invoice from the recipient to send your assets.</p>
+        <DemoField label="Recipient's Invoice">
+          <Input.TextArea value={invoice} onChange={(e) => setInvoice(e.target.value)} rows={3} placeholder="Paste the invoice you received from the recipient" />
         </DemoField>
-        <DemoField label="Send Amount">
-          <Input value={sendAmount} onChange={(e) => setSendAmount(e.target.value)} />
+        <DemoField label="Amount to Send">
+          <Input value={sendAmount} onChange={(e) => setSendAmount(e.target.value)} placeholder="How much to send" />
         </DemoField>
-        <DemoField label="Fee Rate">
-          <Input value={feeRate} onChange={(e) => setFeeRate(e.target.value)} />
+        <DemoField label="Transaction Fee Rate">
+          <Input value={feeRate} onChange={(e) => setFeeRate(e.target.value)} placeholder="Fee rate in satoshis per byte" />
         </DemoField>
         <Space style={{ marginTop: 16 }} wrap>
-          <Button loading={sendExecution.isLoading} onClick={createSendBegin}>Send Begin</Button>
-          <Button loading={sendExecution.isLoading} onClick={signRgbPsbt}>Sign PSBT</Button>
-          <Button loading={sendExecution.isLoading} onClick={sendEnd}>Send End</Button>
-          <Button type="primary" loading={sendExecution.isLoading} onClick={fullSend}>Full Send</Button>
+          <Button loading={sendExecution.isLoading} onClick={createSendBegin}>1. Prepare Transfer</Button>
+          <Button loading={sendExecution.isLoading} onClick={signRgbPsbt}>2. Sign Transfer</Button>
+          <Button loading={sendExecution.isLoading} onClick={sendEnd}>3. Complete Transfer</Button>
+          <Button type="primary" loading={sendExecution.isLoading} onClick={fullSend}>⚡ Full Transfer (All Steps)</Button>
         </Space>
         <SectionResult result={sendExecution.result} />
-        <DemoField label="Signed PSBT">
-          <Input.TextArea value={signedPsbt} onChange={(e) => setSignedPsbt(e.target.value)} rows={3} />
+        <DemoField label="Signed Transaction Data">
+          <Input.TextArea value={signedPsbt} onChange={(e) => setSignedPsbt(e.target.value)} rows={3} placeholder="Signed transaction will appear here after signing" />
         </DemoField>
       </RgbSection>
+
+      <div style={{ marginTop: 24, fontSize: 13, color: '#666', textAlign: 'left' }}>
+        💡 <strong>What this does:</strong> This is the complete workflow for creating and managing custom assets on Bitcoin. You can:
+        <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+          <li><strong>Create</strong> your own tokens or collectibles with custom names and symbols</li>
+          <li><strong>Receive</strong> assets from others using invoices</li>
+          <li><strong>Send</strong> assets to anyone with a compatible wallet</li>
+          <li>All transactions are secured by your Bitcoin wallet — you approve every step</li>
+        </ul>
+      </div>
     </DemoCard>
   );
 }
@@ -376,7 +416,7 @@ function SectionResult({ result }: { result?: DemoResult }) {
     return (
       <div style={{ marginTop: 12 }}>
         <Spin size="small" />
-        <span style={{ marginLeft: 8 }}>Requesting...</span>
+        <span style={{ marginLeft: 8 }}>Processing...</span>
       </div>
     );
   }
@@ -385,7 +425,7 @@ function SectionResult({ result }: { result?: DemoResult }) {
     return (
       <Alert
         type="error"
-        message="Error"
+        message="Something went wrong"
         description={<div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{result.error}</div>}
         style={{ marginTop: 12 }}
       />
@@ -396,7 +436,7 @@ function SectionResult({ result }: { result?: DemoResult }) {
     return (
       <Alert
         type="success"
-        message="Success"
+        message="Done!"
         description={
           <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: 180, overflow: 'auto' }}>
             {result.data}

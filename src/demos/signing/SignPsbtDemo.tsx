@@ -7,11 +7,11 @@ import type { DemoConfig } from '../types';
 
 export const signPsbtConfig: DemoConfig = {
   key: 'signPsbt',
-  title: 'Sign PSBT',
+  title: 'Sign Transaction',
   category: 'signing',
   apiMethod: 'unisat.signPsbt',
-  docUrl: 'https://github.com/unisat-wallet/wallet/blob/master/docs/api/sign-transaction.md#signpsbt',
-  description: 'Sign a Partially Signed Bitcoin Transaction (PSBT).',
+  // docUrl removed — no longer displayed
+  description: 'Approve and sign a Bitcoin transaction with your wallet. This is like adding your digital signature to authorize a payment or contract.',
   walletConnectSupported: true,
 };
 
@@ -22,7 +22,7 @@ export function SignPsbtDemo() {
 
   const handleSign = async () => {
     if (!psbtHex.trim()) {
-      throw new Error('Please enter a PSBT hex');
+      throw new Error('Please enter a transaction to sign');
     }
 
     await execute(async () => {
@@ -35,11 +35,11 @@ export function SignPsbtDemo() {
 
   return (
     <DemoCard config={signPsbtConfig} result={result}>
-      <DemoField label="PSBT Hex">
+      <DemoField label="Transaction Data">
         <Input.TextArea
           value={psbtHex}
           onChange={(e) => setPsbtHex(e.target.value)}
-          placeholder="Enter PSBT hex string"
+          placeholder="Paste the transaction details here"
           rows={3}
         />
       </DemoField>
@@ -50,8 +50,12 @@ export function SignPsbtDemo() {
         onClick={handleSign}
         style={{ marginTop: 16 }}
       >
-        Sign PSBT
+        Sign Transaction
       </Button>
+
+      <div style={{ marginTop: 16, fontSize: 13, color: '#666', textAlign: 'left' }}>
+        💡 <strong>What this does:</strong> Signing a transaction with your wallet confirms that you approve the transfer. It's like authorizing a payment — your signature proves it's really you, without exposing your private keys.
+      </div>
     </DemoCard>
   );
 }

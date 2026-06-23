@@ -6,11 +6,11 @@ import type { DemoConfig } from '../types';
 
 export const pushTxConfig: DemoConfig = {
   key: 'pushTx',
-  title: 'Push Transaction',
+  title: 'Broadcast Raw Transaction',
   category: 'broadcast',
   apiMethod: 'unisat.pushTx',
-  docUrl: 'https://github.com/unisat-wallet/wallet/blob/master/docs/api/sign-transaction.md#pushtx',
-  description: 'Broadcast a raw transaction to the network.',
+  // docUrl removed — no longer displayed
+  description: 'Submit your finalized transaction to the Bitcoin network. This is how you send a transaction out into the world for miners to confirm and complete.',
   walletConnectSupported: false,
 };
 
@@ -20,7 +20,7 @@ export function PushTxDemo() {
 
   const handlePush = async () => {
     if (!rawTx.trim()) {
-      throw new Error('Please enter a raw transaction hex');
+      throw new Error('Please paste the transaction data you want to broadcast');
     }
 
     await execute(async () => {
@@ -30,11 +30,11 @@ export function PushTxDemo() {
 
   return (
     <DemoCard config={pushTxConfig} result={result}>
-      <DemoField label="Raw Transaction Hex">
+      <DemoField label="Transaction Data">
         <Input.TextArea
           value={rawTx}
           onChange={(e) => setRawTx(e.target.value)}
-          placeholder="Enter raw transaction hex string"
+          placeholder="Paste your final transaction details here"
           rows={3}
         />
       </DemoField>
@@ -47,6 +47,10 @@ export function PushTxDemo() {
       >
         Broadcast Transaction
       </Button>
+
+      <div style={{ marginTop: 16, fontSize: 13, color: '#666', textAlign: 'left' }}>
+        💡 <strong>What this does:</strong> Once you've signed a transaction, it needs to be sent to the Bitcoin network so it can be confirmed. This step broadcasts your transaction to the network — similar to dropping a letter in the mailbox. Miners will then pick it up, verify it, and add it to the blockchain. After that, the transaction is complete and can't be reversed.
+      </div>
     </DemoCard>
   );
 }

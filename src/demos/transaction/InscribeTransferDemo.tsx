@@ -6,11 +6,11 @@ import type { DemoConfig } from '../types';
 
 export const inscribeTransferConfig: DemoConfig = {
   key: 'inscribeTransfer',
-  title: 'Inscribe Transfer',
+  title: 'Send Digital Assets',
   category: 'transaction',
   apiMethod: 'unisat.inscribeTransfer',
-  docUrl: 'https://github.com/unisat-wallet/wallet/blob/master/docs/api/manage-assets.md#inscribetransfer',
-  description: 'Inscribe a BRC-20 transfer inscription.',
+  // docUrl removed — no longer displayed
+  description: 'Transfer your digital tokens (BRC-20) to another wallet. It\'s like sending money to a friend — quick, secure, and irreversible.',
   walletConnectSupported: false,
 };
 
@@ -21,7 +21,7 @@ export function InscribeTransferDemo() {
 
   const handleInscribe = async () => {
     if (!ticker.trim()) {
-      throw new Error('Please enter a ticker');
+      throw new Error('Please enter the asset symbol you want to send');
     }
     if (!amount || Number(amount) <= 0) {
       throw new Error('Please enter a valid amount');
@@ -37,19 +37,19 @@ export function InscribeTransferDemo() {
 
   return (
     <DemoCard config={inscribeTransferConfig} result={result}>
-      <DemoField label="Ticker">
+      <DemoField label="Asset Symbol">
         <Input
           value={ticker}
           onChange={(e) => setTicker(e.target.value)}
-          placeholder="e.g., ordi"
+          placeholder="e.g., ordi (the asset you want to send)"
         />
       </DemoField>
 
-      <DemoField label="Amount">
+      <DemoField label="Amount to Send">
         <Input
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Enter amount"
+          placeholder="Enter how much you want to send"
         />
       </DemoField>
 
@@ -59,8 +59,12 @@ export function InscribeTransferDemo() {
         onClick={handleInscribe}
         style={{ marginTop: 16 }}
       >
-        Inscribe Transfer
+        Send Transfer
       </Button>
+
+      <div style={{ marginTop: 16, fontSize: 13, color: '#666', textAlign: 'left' }}>
+        💡 <strong>What this does:</strong> This creates and sends a transfer request for your digital tokens. Once confirmed, the assets will move from your wallet to the recipient's wallet. It works just like sending money — only faster and without the bank fees.
+      </div>
     </DemoCard>
   );
 }

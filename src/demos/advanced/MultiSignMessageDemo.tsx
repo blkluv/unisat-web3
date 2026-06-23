@@ -7,11 +7,11 @@ import type { DemoConfig, DemoResult } from '../types';
 
 export const multiSignMessageConfig: DemoConfig = {
   key: 'multiSignMessage',
-  title: 'Multi Sign Messages',
+  title: 'Sign Multiple Messages',
   category: 'advanced',
   apiMethod: 'unisat.multiSignMessage',
-  docUrl: 'https://github.com/unisat-wallet/wallet/blob/master/docs/api/sign-message.md#multisignmessage',
-  description: 'Sign multiple messages in a single request with different signature types.',
+  // docUrl removed — no longer displayed
+  description: 'Sign several messages at once — perfect for batch verification or authorizing multiple actions in one go. Each message can use a different signature method.',
   walletConnectSupported: false,
 };
 
@@ -46,7 +46,7 @@ export function MultiSignMessageDemo() {
 
   const handleSign = async () => {
     if (messages.some((msg) => !msg.text.trim())) {
-      setResult({ status: 'error', error: 'All messages must have content' });
+      setResult({ status: 'error', error: 'Please fill in all messages before signing' });
       return;
     }
 
@@ -56,7 +56,7 @@ export function MultiSignMessageDemo() {
     try {
       const sigs = await getUnisat().multiSignMessage(messages);
       setSignatures(sigs);
-      setResult({ status: 'success', data: `Signed ${sigs.length} messages` });
+      setResult({ status: 'success', data: `Successfully signed ${sigs.length} message${sigs.length > 1 ? 's' : ''}` });
     } catch (e) {
       setResult({ status: 'error', error: e instanceof Error ? e.message : String(e) });
     }
@@ -64,7 +64,7 @@ export function MultiSignMessageDemo() {
 
   return (
     <DemoCard config={multiSignMessageConfig} result={result}>
-      <DemoField label="Messages">
+      <DemoField label="Messages to Sign">
         <div>
           {messages.map((msg, index) => (
             <div key={index} style={{ marginBottom: 12 }}>
@@ -82,24 +82,24 @@ export function MultiSignMessageDemo() {
               <Input
                 value={msg.text}
                 onChange={(e) => updateMessage(index, 'text', e.target.value)}
-                placeholder="Enter message"
+                placeholder="Type your message here"
                 style={{ marginBottom: 8 }}
               />
               <Space>
-                <span>Type:</span>
+                <span>Signature Type:</span>
                 <Button
                   type={msg.type === '' ? 'primary' : 'default'}
                   size="small"
                   onClick={() => updateMessage(index, 'type', '')}
                 >
-                  ECDSA
+                  Standard
                 </Button>
                 <Button
                   type={msg.type === 'bip322-simple' ? 'primary' : 'default'}
                   size="small"
                   onClick={() => updateMessage(index, 'type', 'bip322-simple')}
                 >
-                  BIP-322
+                  Advanced (BIP-322)
                 </Button>
               </Space>
               {index < messages.length - 1 && <Divider style={{ margin: '12px 0' }} />}
@@ -112,7 +112,7 @@ export function MultiSignMessageDemo() {
             style={{ width: '100%', marginTop: 8 }}
             icon={<PlusOutlined />}
           >
-            Add Message
+            Add Another Message
           </Button>
         </div>
       </DemoField>
@@ -121,7 +121,7 @@ export function MultiSignMessageDemo() {
         <Alert
           type="info"
           style={{ marginTop: 16, textAlign: 'left' }}
-          message="Signatures"
+          message="Signatures Generated"
           description={
             <div style={{ maxHeight: 200, overflow: 'auto' }}>
               {signatures.map((sig, index) => (
@@ -144,6 +144,10 @@ export function MultiSignMessageDemo() {
       >
         Sign All Messages
       </Button>
+
+      <div style={{ marginTop: 16, fontSize: 13, color: '#666', textAlign: 'left' }}>
+        💡 <strong>What this does:</strong> This lets you sign multiple messages in a single step — ideal for verifying multiple pieces of content or authorizing several actions at once. You can mix and match signature types (Standard or Advanced) for each message. Your wallet will ask for confirmation before signing, making it secure and simple.
+      </div>
     </DemoCard>
   );
 }

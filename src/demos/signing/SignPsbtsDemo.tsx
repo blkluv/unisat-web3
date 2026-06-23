@@ -7,11 +7,11 @@ import type { DemoConfig } from '../types';
 
 export const signPsbtsConfig: DemoConfig = {
   key: 'signPsbts',
-  title: 'Sign Multiple PSBTs',
+  title: 'Sign Multiple Transactions',
   category: 'signing',
   apiMethod: 'unisat.signPsbts',
-  docUrl: 'https://github.com/unisat-wallet/wallet/blob/master/docs/api/sign-transaction.md#signpsbts',
-  description: 'Sign multiple PSBTs in a single request.',
+  // docUrl removed — no longer displayed
+  description: 'Approve and sign several Bitcoin transactions at once. Perfect for batch payments or when you need to authorize multiple transfers in one go.',
   walletConnectSupported: true,
 };
 
@@ -23,7 +23,7 @@ export function SignPsbtsDemo() {
   const handleSign = async () => {
     const psbts = psbtsHex.split('\n').filter((p) => p.trim());
     if (psbts.length === 0) {
-      throw new Error('Please enter at least one PSBT hex');
+      throw new Error('Please enter at least one transaction to sign');
     }
 
     await execute(
@@ -39,11 +39,11 @@ export function SignPsbtsDemo() {
 
   return (
     <DemoCard config={signPsbtsConfig} result={result}>
-      <DemoField label="PSBT Hex (one per line)">
+      <DemoField label="Transaction Data (one per line)">
         <Input.TextArea
           value={psbtsHex}
           onChange={(e) => setPsbtsHex(e.target.value)}
-          placeholder="Enter PSBT hex strings, one per line"
+          placeholder="Paste each transaction details, one per line"
           rows={4}
         />
       </DemoField>
@@ -54,8 +54,12 @@ export function SignPsbtsDemo() {
         onClick={handleSign}
         style={{ marginTop: 16 }}
       >
-        Sign PSBTs
+        Sign All Transactions
       </Button>
+
+      <div style={{ marginTop: 16, fontSize: 13, color: '#666', textAlign: 'left' }}>
+        💡 <strong>What this does:</strong> This lets you approve multiple transfers in a single step. Instead of signing each payment one by one, you can batch them together — saving you time and clicks. Your wallet will ask you to confirm each one, but you only need to go through the process once.
+      </div>
     </DemoCard>
   );
 }

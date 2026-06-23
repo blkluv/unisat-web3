@@ -5,38 +5,67 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+
+    <!-- Primary Meta Tags -->
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="SayPay Wallet — Your simple, secure gateway to Bitcoin and digital assets. Send, receive, and manage your crypto with ease."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>SayPay Wallet</title>
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="SayPay Wallet — Digital Asset Management" />
+    <meta
+      property="og:description"
+      content="Manage your Bitcoin assets, sign transactions, and interact with the blockchain — all from one clean, intuitive interface."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://saypay.io" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SayPay Wallet" />
+    <meta
+      name="twitter:description"
+      content="Your gateway to Bitcoin and digital assets. Secure, simple, and built for everyone."
+    />
+
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <title>SayPay Wallet — Simple, Secure Digital Bitcoin Sats Wallet</title>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="text-align: center; padding: 40px; font-family: system-ui, -apple-system, sans-serif;">
+        <h1>🔐 SayPay Wallet</h1>
+        <p style="font-size: 18px; max-width: 500px; margin: 0 auto;">
+          To use this wallet, please enable JavaScript in your browser.
+          <br /><br />
+          SayPay Wallet lets you send, receive, and manage digital assets securely — all from your browser.
+        </p>
+      </div>
+    </noscript>
+
     <div id="root"></div>
+
     <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+      ═══════════════════════════════════════════════════════════════════
+      SayPay Wallet — Digital Asset Management
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+      This is a React-based wallet application that provides:
+        • Bitcoin wallet management
+        • Transaction signing (ECDSA and BIP-322)
+        • RGB asset creation and transfer
+        • Secure messaging and verification
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+      Built with React, Ant Design, and the Unisat Wallet SDK.
+
+      ═══════════════════════════════════════════════════════════════════
+
+      Development: npm start
+      Production:  npm run build
+
+      For more information, visit: https://saypay.io
     -->
   </body>
 </html>

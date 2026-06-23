@@ -140,7 +140,7 @@ function App({
       {contextHolder}
 
       <header className="top-bar">
-        <div className="brand">SatCash</div>
+        <div className="brand">WALLET.</div>
 
         <div className="wallet-meta">
           {wallet && <span className="wallet-source">via {wallet.config.name}</span>}

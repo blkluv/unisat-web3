@@ -69,7 +69,7 @@ export function useDemoExecution() {
 export function getUnisat() {
   const unisat = (window as any).unisat;
   if (!unisat) {
-    throw new Error('UniSat wallet not found');
+    throw new Error('SatPay wallet not found');
   }
   return unisat;
 }
